@@ -50,7 +50,7 @@ VescToOdom::VescToOdom(const rclcpp::NodeOptions & options)
   odom_frame_("odom"),
   base_frame_("base_link"),
   use_servo_cmd_(true),
-  publish_tf_(false),
+  publish_tf_(true),
   x_(0.0),
   y_(0.0),
   yaw_(0.0)

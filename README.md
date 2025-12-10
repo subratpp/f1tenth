@@ -15,3 +15,5 @@ Start: sudo /usr/NX/bin/nxserver --startup
 
 # SLAM
 ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
+
+ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml use_sim_time:=false
