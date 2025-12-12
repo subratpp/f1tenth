@@ -146,9 +146,9 @@ void VescToOdom::vescStateCallback(const VescStateStamped::SharedPtr state)
 
   // Position uncertainty
   /** @todo Think about position uncertainty, perhaps get from parameters? */
-  odom.pose.covariance[0] = 0.2;   ///< x
-  odom.pose.covariance[7] = 0.2;   ///< y
-  odom.pose.covariance[35] = 0.4;  ///< yaw
+  odom.pose.covariance[0] = 0.25;   ///< x 0.2
+  odom.pose.covariance[7] = 0.5;   ///< y 0.2
+  odom.pose.covariance[35] = 0.4;  ///< yaw 0.4
 
   // Velocity ("in the coordinate frame given by the child_frame_id")
   odom.twist.twist.linear.x = current_speed;
@@ -156,7 +156,9 @@ void VescToOdom::vescStateCallback(const VescStateStamped::SharedPtr state)
   odom.twist.twist.angular.z = current_angular_velocity;
 
   // Velocity uncertainty
-  /** @todo Think about velocity uncertainty */
+  /** @todo #subu: added from ForzaETH repo */ 
+  // odom->twist.covariance[0]  = 0.02; ///< vx
+  // odom->twist.covariance[7]  = 0.05; ///< vy
 
   if (publish_tf_) {
     TransformStamped tf;
