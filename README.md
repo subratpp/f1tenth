@@ -12,6 +12,8 @@ No Machine:
 Check Status: sudo /usr/NX/bin/nxserver --status
 Start: sudo /usr/NX/bin/nxserver --startup
 
+# Jetson Clock
+sudo /usr/bin/jetson_clocks
 
 # SLAM
 ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
