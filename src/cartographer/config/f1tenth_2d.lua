@@ -5,13 +5,12 @@ options = {
   map_builder = MAP_BUILDER,
   trajectory_builder = TRAJECTORY_BUILDER,
   map_frame = "map",
-  tracking_frame = "base_link",    -- The frame of your robot base
-  published_frame = "odom",        -- Cartographer publishes map -> odom
-  odom_frame = "odom",             -- The frame provided by your VESC/Odometry
-  provide_odom_frame = false,      -- FALSE because your VESC already publishes odom -> base_link
+  tracking_frame = "base_link",    -- If no IMU, this MUST be base_link (or laser)
+  published_frame = "base_link",   -- Cartographer publishes the map->base_link transform
+  odom_frame = "odom",             -- The frame provided by VESC
+  provide_odom_frame = false,      -- Keep false if VESC publishes odom->base_link
   publish_frame_projected_to_2d = false,
-  use_pose_extrapolator = true,
-  use_odometry = true,             -- We use the wheel odometry
+  use_odometry = true,             -- Use VESC odometry
   use_nav_sat = false,
   use_landmarks = false,
   num_laser_scans = 1,
@@ -22,6 +21,7 @@ options = {
   submap_publish_period_sec = 0.3,
   pose_publish_period_sec = 5e-3,
   trajectory_publish_period_sec = 30e-3,
+
   rangefinder_sampling_ratio = 1.,
   odometry_sampling_ratio = 1.,
   fixed_frame_pose_sampling_ratio = 1.,
@@ -31,14 +31,8 @@ options = {
 
 MAP_BUILDER.use_trajectory_builder_2d = true
 
--- KEY SETTINGS FOR NO IMU / ODOM ONLY
+-- CRITICAL: Disable IMU usage
 TRAJECTORY_BUILDER_2D.use_imu_data = false 
-TRAJECTORY_BUILDER_2D.min_range = 0.3
-TRAJECTORY_BUILDER_2D.max_range = 8.0 -- Adjust based on your LiDAR's real range
-TRAJECTORY_BUILDER_2D.missing_data_ray_length = 5.
-TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true
-TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.linear_search_window = 0.1
-TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.translation_delta_cost_weight = 10.
-TRAJECTORY_BUILDER_2D.real_time_correlative_scan_matcher.rotation_delta_cost_weight = 1e-1
+TRAJECTORY_BUILDER_2D.use_online_correlative_scan_matching = true 
 
 return options

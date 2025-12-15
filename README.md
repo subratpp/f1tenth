@@ -56,7 +56,7 @@ roslaunch particle_filter localize.launch
 
 
 # Cartographer
-ros2 launch my_cartographer_config cartographer.launch.py
+ros2 launch cartographer cartographer.launch.py
 
 ## save map
-ros2 run nav2_map_server map_saver_cli -f ~/my_f1tenth_map
+ros2 run nav2_map_server map_saver_cli -f ~/race_stack/f1tenth/test
