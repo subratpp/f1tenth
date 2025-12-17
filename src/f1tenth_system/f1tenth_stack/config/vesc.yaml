@@ -7,8 +7,9 @@
     speed_to_erpm_offset: 0.0
 
     # servo value (0 to 1) =  steering_angle_to_servo_gain * steering angle (radians) + steering_angle_to_servo_offset
-    steering_angle_to_servo_gain: -0.738 #-0.745 # -0.8875 # -0.8890625 # -1.2135
-    steering_angle_to_servo_offset: 0.44 #0.44 # 0.46 # 0.57 # 0.545 # 0625 # 0.5253125  
+    # 1.752 m for wheelbase of 32.4cm
+    steering_angle_to_servo_gain: -0.725 #-0.745 # -0.8875 # -0.8890625 # -1.2135
+    steering_angle_to_servo_offset: 0.445 #0.44 # 0.46 # 0.57 # 0.545 # 0625 # 0.5253125  
 
     port: /dev/sensors/vesc
     duty_cycle_min: 0.0
@@ -17,12 +18,12 @@
     current_max: 100.0
     brake_min: -20000.0
     brake_max: 200000.0
-    speed_min: -23250.0
-    speed_max: 23250.0
+    speed_min: -80000.0
+    speed_max: 80000.0
     position_min: 0.0
     position_max: 0.0
-    servo_min: 0.1 # 0.1
-    servo_max: 0.9 # 0.95
+    servo_min: 0.0 # 0.1
+    servo_max: 0.90 # 0.95
 
 # No longer needed, all parameters are shared
 # ackermann_to_vesc_node:
@@ -35,8 +36,8 @@ vesc_to_odom_node:
     # publish odom to base link tf
     publish_tf: true
     use_servo_cmd_to_calc_angular_velocity: true
-    # car wheelbase is about 25cm, but the car is 32.1cm
-    wheelbase: .321
+    # car wheelbase is 32.4cm for Fiesta
+    wheelbase: .324
 
 # No longer needed, all parameters are shared
 # vesc_driver:
@@ -50,7 +51,7 @@ throttle_interpolator:
     servo_output_topic: commands/servo/position
 
     # servo smoother - limits acceleration and smooths anything above limit
-    max_acceleration: 2.5 # meters/second^2
+    max_acceleration: 3.5 # meters/second^2
     throttle_smoother_rate: 75.0 # messages/sec
     # servo smoother - limits rotation speed and smooths anything above limit
     max_servo_speed: 3.2 # radians/second
