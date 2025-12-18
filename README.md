@@ -21,7 +21,7 @@ ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_
 
 
 ## save map
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: '/home/rlspeed/race_stack/f1tenth/hes'}}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: '/home/rlspeed/race_stack/f1tenth/hesl'}}"
 
 
 ## save posegraph
@@ -52,7 +52,7 @@ Need to create tf_static base_link -> camera_link
 
 # Particle Filter 2017
 
-roslaunch particle_filter localize.launch
+ros2 launch particle_filter localize_launch.py
 
 
 # Cartographer
@@ -60,3 +60,13 @@ ros2 launch cartographer cartographer.launch.py
 
 ## save map
 ros2 run nav2_map_server map_saver_cli -f ~/race_stack/f1tenth/test
+
+
+
+# loacalixation
+ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap "{map_url: /home/rlspeed/race_stack/f1tenth/hesl.yaml}"
+or?
+ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap \
+"{map_url: '/home/rlspeed/race_stack/f1tenth/hesl.yaml'}"
+
+

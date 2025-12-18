@@ -3,13 +3,13 @@
   # general parameters shared by all vesc-related nodes
   ros__parameters:
     # erpm (electrical rpm) = speed_to_erpm_gain * speed (meters / second) + speed_to_erpm_offset
-    speed_to_erpm_gain: 2095.0
+    speed_to_erpm_gain: 4500.000
     speed_to_erpm_offset: 0.0
 
     # servo value (0 to 1) =  steering_angle_to_servo_gain * steering angle (radians) + steering_angle_to_servo_offset
     # 1.752 m for wheelbase of 32.4cm
-    steering_angle_to_servo_gain: -0.97 #-0.745 # -0.8875 # -0.8890625 # -1.2135
-    steering_angle_to_servo_offset: 0.525 #0.44 # 0.46 # 0.57 # 0.545 # 0625 # 0.5253125  
+    steering_angle_to_servo_gain: -0.725 #-0.745 # -0.8875 # -0.8890625 # -1.2135
+    steering_angle_to_servo_offset: 0.445 #0.44 # 0.46 # 0.57 # 0.545 # 0625 # 0.5253125  
 
     port: /dev/sensors/vesc
     duty_cycle_min: 0.0
@@ -18,12 +18,12 @@
     current_max: 100.0
     brake_min: -20000.0
     brake_max: 200000.0
-    speed_min: -30000.0
-    speed_max: 30000.0
+    speed_min: -80000.0
+    speed_max: 80000.0
     position_min: 0.0
     position_max: 0.0
-    servo_min: 0.232 # 0.1
-    servo_max: 1.0 # 0.95
+    servo_min: 0.0 # 0.1
+    servo_max: 0.90 # 0.95
 
 # No longer needed, all parameters are shared
 # ackermann_to_vesc_node:
@@ -36,7 +36,7 @@ vesc_to_odom_node:
     # publish odom to base link tf
     publish_tf: true
     use_servo_cmd_to_calc_angular_velocity: true
-    # car wheelbase is 32.4cm for Fiesta and 33 cm for slash
+    # car wheelbase is 32.4cm for Fiesta
     wheelbase: .33
 
 # No longer needed, all parameters are shared
