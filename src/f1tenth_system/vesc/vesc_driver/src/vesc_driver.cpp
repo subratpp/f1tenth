@@ -212,6 +212,7 @@ void VescDriver::vescPacketCallback(const std::shared_ptr<VescPacket const> & pa
     std_imu_msg.header.stamp = now();
     std_imu_msg.header.frame_id = "imu";
 
+    
     // in SI unit rad
     imu_msg.imu.ypr.x = imuData->roll() * M_PI / 180.0;
     imu_msg.imu.ypr.y = imuData->pitch() * M_PI / 180.0;

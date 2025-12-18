@@ -53,6 +53,7 @@ Need to create tf_static base_link -> camera_link
 # Particle Filter 2017
 
 ros2 launch particle_filter localize_launch.py
+rviz map: the map does not show up automatically, change the durability policy to transient (Map -> Topic -> Durability Policy). This is because the map is running on server.
 
 
 # Cartographer
@@ -70,3 +71,21 @@ ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap \
 "{map_url: '/home/rlspeed/race_stack/f1tenth/hesl.yaml'}"
 
 
+
+
+# EKF (odm - imu fusion)
+ros2 launch state_estimation ekf.launch.py
+
+
+# Final
+bringup: ros2 launch f1tenth_stack bringup_launch.py
+ekf: ros2 launch state_estimation ekf.launch.py
+
+slam: ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
+save_map: ros2 run nav2_map_server map_saver_cli -f ~/race_stack/f1tenth/test
+
+---
+get_traj: 
+---
+pf: ros2 launch particle_filter localize_launch.py
+run_pp:
