@@ -1,10 +1,15 @@
 # f1tenth
 F1Tenth Race Stack for Autonomous Navigation
 
+ros2 launch rosbridge_server rosbridge_websocket_launch.xml
+
+For foxglove_bridge: need to source galactic: source /opt/ros/galactic/setup.bash
+ros2 run foxglove_bridge foxglove_bridge
 
 
 connect bt: connect_joy on terminal
 
+## Bringup
 bringup: ros2 launch f1tenth_stack bringup_launch.py
 
 
@@ -76,7 +81,7 @@ ros2 service call /map_server/load_map nav2_msgs/srv/LoadMap \
 # EKF (odm - imu fusion)
 ros2 launch state_estimation ekf.launch.py
 
-
+=======
 # Final
 bringup: ros2 launch f1tenth_stack bringup_launch.py
 ekf: ros2 launch state_estimation ekf.launch.py
@@ -84,8 +89,9 @@ ekf: ros2 launch state_estimation ekf.launch.py
 slam: ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml
 save_map: ros2 run nav2_map_server map_saver_cli -f ~/race_stack/f1tenth/test
 
+
 ---
-get_traj: 
+get_traj: obtain it from the notebook
 ---
 pf: ros2 launch particle_filter localize_launch.py
-run_pp:
+run_pp: ros2 launch pure_pursuit pure_pursuit_launch.py

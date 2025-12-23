@@ -17,7 +17,7 @@ pure_pursuit:
     # K_p: 0.25 # for square track
     K_p: 0.15 # for big track
     steering_limit: 25.0
-    velocity_percentage: 0.8 # the limit, can only do 1 lap with clean tires
+    velocity_percentage: 0.1 # the limit, can only do 1 lap with clean tires
 
 waypoint_visualizer_node:
   ros__parameters:
