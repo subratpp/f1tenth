@@ -1,6 +1,14 @@
 # f1tenth
 F1Tenth Race Stack for Autonomous Navigation
 
+colcon build --symlink-install # for editic src config directly
+
+
+## Lidar Odom (need to check it's working)
+ros2 launch rf2o_laser_odometry rf2o_laser_odometry.launch.py 
+
+
+## Foxglove Viz
 ros2 launch rosbridge_server rosbridge_websocket_launch.xml
 
 For foxglove_bridge: need to source galactic: source /opt/ros/galactic/setup.bash
