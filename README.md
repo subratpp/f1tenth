@@ -4,6 +4,8 @@ F1Tenth Race Stack for Autonomous Navigation
 colcon build --symlink-install # for editic src config directly
 
 
+python ./key_teleop.py
+
 ## Lidar Odom (need to check it's working)
 ros2 launch rf2o_laser_odometry rf2o_laser_odometry.launch.py 
 
@@ -34,7 +36,7 @@ ros2 launch slam_toolbox online_async_launch.py params_file:=/home/rlspeed/race_
 
 
 ## save map
-ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: '/home/rlspeed/race_stack/f1tenth/hesl'}}"
+ros2 service call /slam_toolbox/save_map slam_toolbox/srv/SaveMap "{name: {data: '/home/rlspeed/race_stack/f1tenth/arc'}}"
 
 
 ## save posegraph
