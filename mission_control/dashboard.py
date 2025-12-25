@@ -58,12 +58,12 @@ def shutdown_handler(signum, frame):
     # allow processes time to exit gracefully
     threading.Timer(2.0, lambda: os._exit(0)).start()
 
+
 signal.signal(signal.SIGINT, shutdown_handler)
 signal.signal(signal.SIGTERM, shutdown_handler)
 
 
 MAP_PARAM_FILE = "/home/rlspeed/race_stack/f1tenth/src/f1tenth_system/f1tenth_stack/config/f1tenth_online_async.yaml"
-
 
 
 # ===============================
@@ -78,6 +78,9 @@ MAX_SPEED = 1.0
 STEER_MAG = 0.20
 
 HZ = 20.0
+
+# NEW: mode flag (Manual by default)
+autonomous_mode = False
 
 
 # ===============================
@@ -138,7 +141,18 @@ input[type=number]{
 </head>
 <body>
 
-<h2>Robot Teleoperation</h2>
+<h2>F1Tenth Dashboard</h2>
+
+<!-- ====== MODE TOGGLE ====== -->
+<h3>
+ Mode:
+ <span id="modeLabel" style="font-weight:bold;color:blue;">MANUAL</span>
+</h3>
+
+<button class="small-btn" onclick="set_manual()">Manual</button>
+<button class="small-btn" onclick="set_auto()">Autonomous</button>
+
+<br><br>
 
 <!-- ========= COMPACT ORCHESTRATOR (2 LINES) ========= -->
 
@@ -169,17 +183,16 @@ input[type=number]{
 
 <!-- ================= TELEOP SECTION ================= -->
 
-<h3>Teleop Limits</h3>
-Max speed:
+<h3>Control Pad</h3>
+Max Speed:
 <input id="maxSpeed" type="number" step="0.1" value="1.0">
-Max |steer|:
+Max Steer:
 <input id="maxSteer" type="number" step="0.01" value="0.20">
-<button onclick="apply_limits()">✔ ACCEPT</button>
+<button onclick="apply_limits()">APPLY</button>
 
 <p id="limitView" style="font-weight:bold;"></p>
 
-<h3>Current Command</h3>
-<p id="cmdView" style="font-size:18px;">speed=0.00 , steer=0.00</p>
+<p id="cmdView" style="font-size:18px;">speed=0.00 | steer=0.00</p>
 
 <div>
   <button class="dpad-btn" onclick="send('up')">U</button>
@@ -214,12 +227,16 @@ function apply_limits(){
     })}).then(update_state);
 }
 
+// NEW --- mode switching ---
+function set_manual(){ fetch("/mode/manual").then(update_state); }
+function set_auto(){ fetch("/mode/auto").then(update_state); }
+
 function update_state(){
  fetch("/state").then(r=>r.json()).then(s=>{
 
    // limits + command
    document.getElementById('limitView').innerText =
-     `Limits: max_speed ${s.max_speed.toFixed(2)} , |steer| ≤ ${s.steer_mag.toFixed(2)}`;
+     `Limits: speed ${s.max_speed.toFixed(2)}, steer ≤ ${s.steer_mag.toFixed(2)}`;
 
    document.getElementById('cmdView').innerText =
      `speed ${s.speed.toFixed(2)} , steer ${s.steer.toFixed(2)}`;
@@ -231,6 +248,12 @@ function update_state(){
    // map state
    document.getElementById('mapText').innerText=s.map;
    document.getElementById('mapDot').className="status-dot "+s.map;
+
+   // mode state
+   document.getElementById('modeLabel').innerText =
+     s.autonomous ? "AUTONOMOUS" : "MANUAL";
+   document.getElementById('modeLabel').style.color =
+     s.autonomous ? "red" : "blue";
  });
 }
 
@@ -255,11 +278,13 @@ def bringup_start():
     bringup_proc=start_launch(["ros2","launch","f1tenth_stack","bringup_launch.py"])
     return "ok"
 
+
 @app.route("/bringup/stop")
 def bringup_stop():
     global bringup_proc
     stop_launch(bringup_proc)
     return "ok"
+
 
 @app.route("/map/start")
 def map_start():
@@ -281,12 +306,14 @@ def map_stop():
     stop_launch(map_proc)
     return "ok"
 
+
 @app.route("/map/save")
 def map_save():
     now=datetime.now().strftime("%Y%m%d_%H%M%S")
     name=f"/home/rlspeed/race_stack/f1tenth/map_{now}"
     subprocess.Popen(["ros2","run","nav2_map_server","map_saver_cli","-f",name])
     return jsonify(msg=f"saving map to {name}")
+
 
 # ---------- shared status ----------
 @app.route("/state")
@@ -298,7 +325,8 @@ def state():
             speed=speed,
             steer=steer,
             max_speed=MAX_SPEED,
-            steer_mag=STEER_MAG
+            steer_mag=STEER_MAG,
+            autonomous=autonomous_mode
         )
 
 # ---------- teleop config ----------
@@ -310,6 +338,7 @@ def set_limits():
         MAX_SPEED=abs(float(d["max_speed"]))
         STEER_MAG=abs(float(d["steer_mag"]))
     return ("",204)
+
 
 @app.route("/cmd",methods=["POST"])
 def cmd():
@@ -326,6 +355,24 @@ def cmd():
         steer=max(-STEER_MAG,min(STEER_MAG,steer))
     return ("",204)
 
+
+# ---------- mode endpoints ----------
+@app.route("/mode/manual")
+def mode_manual():
+    global autonomous_mode
+    with lock:
+        autonomous_mode = False
+    return ("",204)
+
+
+@app.route("/mode/auto")
+def mode_auto():
+    global autonomous_mode
+    with lock:
+        autonomous_mode = True
+    return ("",204)
+
+
 # ===============================
 # ROS2 TELEOP NODE
 # ===============================
@@ -333,17 +380,23 @@ class DrivePublisher(Node):
     def __init__(self):
         super().__init__("web_teleop")
         self.pub=self.create_publisher(
-            AckermannDriveStamped,"/drive",qos_profile_system_default)
+            AckermannDriveStamped,"/webop",qos_profile_system_default)
         self.create_timer(1.0/HZ,self.on_timer)
 
     def on_timer(self):
+        global autonomous_mode
         with lock:
-            v=float(speed); s=float(steer)
+            if autonomous_mode:
+                return  # do not publish anything in autonomous mode
+            v=float(speed)
+            s=float(steer)
+
         msg=AckermannDriveStamped()
         msg.header.stamp=self.get_clock().now().to_msg()
         msg.drive.speed=v
         msg.drive.steering_angle=s
         self.pub.publish(msg)
+
 
 # ===============================
 # MAIN
