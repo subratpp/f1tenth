@@ -14,6 +14,8 @@ from rclpy.qos import qos_profile_system_default
 
 from ackermann_msgs.msg import AckermannDriveStamped
 
+from slam_toolbox.srv import SaveMap
+
 
 app = Flask(__name__)
 
@@ -75,7 +77,7 @@ speed = 0.0
 steer = 0.0
 
 MAX_SPEED = 1.0
-STEER_MAG = 0.20
+STEER_MAG = 0.25
 
 HZ = 20.0
 
@@ -307,12 +309,31 @@ def map_stop():
     return "ok"
 
 
+
+
 @app.route("/map/save")
 def map_save():
-    now=datetime.now().strftime("%Y%m%d_%H%M%S")
-    name=f"/home/rlspeed/race_stack/f1tenth/map_{now}"
-    subprocess.Popen(["ros2","run","nav2_map_server","map_saver_cli","-f",name])
-    return jsonify(msg=f"saving map to {name}")
+    now = datetime.now().strftime("%Y%m%d_%H%M%S")
+    name = f"/home/rlspeed/race_stack/f1tenth/map_{now}"
+
+    # full ros2 command exactly like terminal
+    ros_cmd = f"ros2 run nav2_map_server map_saver_cli -f {name}"
+
+    # IMPORTANT: run inside interactive bash so ROS setup is loaded
+    bash_cmd = f"""{ros_cmd}"""
+
+    try:
+        subprocess.Popen(
+            ["bash", "-i", "-c", bash_cmd],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+            start_new_session=True
+        )
+        return jsonify(msg=f"saving map to {name}")
+    except Exception as e:
+        return jsonify(error=str(e)), 500
+
+
 
 
 # ---------- shared status ----------

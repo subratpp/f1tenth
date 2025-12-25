@@ -52,6 +52,12 @@ def generate_launch_description():
         'mux.yaml'
     )
 
+    ekf_config = os.path.join(
+        get_package_share_directory('state_estimation'),
+        'config',
+        'ekf.yaml'
+    )
+
     joy_la = DeclareLaunchArgument(
         'joy_config',
         default_value=joy_teleop_config,
@@ -68,8 +74,15 @@ def generate_launch_description():
         'mux_config',
         default_value=mux_config,
         description='Descriptions for ackermann mux configs')
+    ekf_la = DeclareLaunchArgument(
+        'ekf_config',
+        default_value=ekf_config,
+        description='Descriptions for ekf configs')
 
-    ld = LaunchDescription([joy_la, vesc_la, sensors_la, mux_la])
+
+        
+
+    ld = LaunchDescription([joy_la, vesc_la, sensors_la, mux_la, ekf_la])
 
     joy_node = Node(
         package='joy',
@@ -120,6 +133,17 @@ def generate_launch_description():
         parameters=[LaunchConfiguration('mux_config')],
         remappings=[('ackermann_cmd_out', 'ackermann_drive')]
     )
+
+    ekf_node = Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=[LaunchConfiguration('ekf_config')],
+            remappings=[
+                ('/odometry/filtered', '/ekf/odom'),
+            ]
+        )
     # static_tf_node = Node(
     #     package='tf2_ros',
     #     executable='static_transform_publisher',
@@ -172,6 +196,8 @@ def generate_launch_description():
     # ld.add_action(throttle_interpolator_node)
     ld.add_action(urg_node)
     ld.add_action(ackermann_mux_node)
+
+    ld.add_action(ekf_node)
     ld.add_action(static_baselink_to_laser)
     ld.add_action(static_baselink_to_imu)
 
